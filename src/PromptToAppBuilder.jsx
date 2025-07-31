@@ -1,8 +1,11 @@
+
 import React, { useState } from "react";
 import { Sandpack } from "@codesandbox/sandpack-react";
 import { amethyst } from "@codesandbox/sandpack-themes";
-    
+
 const defaultCode = `
+import React from "react";
+
 export default function App() {
   return <h1>Start typing a prompt above!</h1>;
 }
@@ -13,96 +16,68 @@ export default function PromptToAppBuilder() {
   const [code, setCode] = useState(defaultCode);
   const [loading, setLoading] = useState(false);
 
-//   const handleGenerate = async () => {
-//     if (!prompt.trim()) return;
-//     setLoading(true);
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return;
+    setLoading(true);
 
-//     try {
-//       const response = await fetch(
-//         "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=AIzaSyCXTVHIyCWBioY2mq6NtfPMcJqdkjOFleU",
-//         {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//           body: JSON.stringify({
-//             contents: [
-//               {
-//                 parts: [
-//                   {
-//                     text: `Respond ONLY with valid JSX code inside:\n\nexport default function App() { ... }\n\nPrompt:\n"${prompt}"`,
-//                   },
-//                 ],
-//               },
-//             ],
-//           }),
-//         }
-//       );
+    try {
+      const response = await fetch("https://api.llm7.io/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer YOUR_LLM7_API_KEY_HERE",
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [
+            {
+              role: "user",
+              content: `Convert the following UI description into valid JSX code.
+Wrap the final output ONLY inside:
 
-//       const data = await response.json();
-//       const responseText =
-//         data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+export default function App() {
+  return (
+    /* JSX here */
+  );
+}
 
-//       const cleanCode = responseText
-//         .replace(/```(jsx|js)?/g, "")
-//         .replace(/```/g, "")
-//         .trim();
+Make sure:
+- The JSX is self-contained
+- All React hooks are fully defined (e.g., useState, useEffect)
+- Add 'import React from "react";' if needed
+- The code is meant to run inside Sandpack so avoid unimported React APIs
+- Output only valid code
 
-//       setCode(cleanCode || defaultCode);
-//     } catch (err) {
-//       console.error("Gemini error:", err);
-//       setCode(`export default function App() {
-//         return <h1>⚠️ Gemini API Error</h1>;
-//       }`);
-//     }
+Prompt: "${prompt}"`,
+            },
+          ],
+          temperature: 0.7,
+        }),
+      });
 
-//     setLoading(false);
-//   };
-const handleGenerate = async () => {
-  if (!prompt.trim()) return;
-  setLoading(true);
+      const data = await response.json();
+      let text = data.choices?.[0]?.message?.content || "";
 
-  try {
-    const response = await fetch("https://api.llm7.io/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer YOUR_LLM7_API_KEY_HERE"
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo", // or whatever model llm7 offers
-        messages: [
-          {
-            role: "user",
-            content: `Convert the following prompt to valid React JSX code wrapped ONLY inside:
+      // Clean up response
+      text = text.replace(/```(jsx|js)?/g, "").replace(/```/g, "").trim();
 
-export default function App() { ... }
+      // Inject React import if missing
+      if (!text.includes(`import React`)) {
+        text = `import React from "react";\n\n${text}`;
+      }
 
-Prompt: "${prompt}"`
-          }
-        ],
-        temperature: 0.7
-      })
-    });
+      setCode(text || defaultCode);
+    } catch (err) {
+      console.error("LLM7 error:", err);
+      setCode(`import React from "react";
 
-    const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || "";
+export default function App() {
+  return <h1>⚠️ LLM7 API Error</h1>;
+}`);
+    }
 
-    const cleanCode = text
-      .replace(/```(jsx|js)?/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    setCode(cleanCode || defaultCode);
-  } catch (err) {
-    console.error("LLM7 error:", err);
-    setCode(`export default function App() {
-      return <h1>⚠️ LLM7 API Error</h1>;
-    }`);
-  }
-
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   return (
     <div
@@ -113,7 +88,7 @@ Prompt: "${prompt}"`
         minHeight: "100vh",
       }}
     >
-      {/* Skiper-style prompt input */}
+      {/* Prompt Input */}
       <div
         style={{
           display: "flex",
@@ -159,9 +134,10 @@ Prompt: "${prompt}"`
         </button>
       </div>
 
-      {/* Code preview box */}
+      {/* Code Preview */}
       <div style={{ marginTop: 40 }}>
-        <Sandpack theme={amethyst} 
+        <Sandpack
+          theme={amethyst}
           style={{
             height: "800px",
             width: "100%",
@@ -174,16 +150,16 @@ Prompt: "${prompt}"`
             "/App.js": code,
           }}
           options={{
-              editorHeight: 800,                // default is 300px
-    editorWidthPercentage: 40  ,
+            editorHeight: 800,
+            editorWidthPercentage: 40,
             showNavigator: true,
             showTabs: true,
             showLineNumbers: true,
-            initMode:"user-visible",
-            initModeObserverOptions:{
+            wrapContent: true,
+            initMode: "user-visible",
+            initModeObserverOptions: {
               rootMargin: "500px",
             },
-            wrapContent: true,
           }}
         />
       </div>
