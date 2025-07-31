@@ -30,7 +30,7 @@ Designed for rapid prototyping, real-time code editing, and effortless previewin
 ### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/yourusername/ai-builder.git
+git clone https://github.com/JustM3Sunny/App-Builder.git
 cd ai-builder
 2. Install Dependencies
 
