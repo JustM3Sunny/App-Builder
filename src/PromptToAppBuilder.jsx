@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Sandpack } from "@codesandbox/sandpack-react";
 import { amethyst, githubLight } from "@codesandbox/sandpack-themes";
 import { FaRocket, FaDownload, FaSun, FaMoon, FaHistory } from "react-icons/fa";
@@ -19,19 +19,20 @@ export default function PromptToAppBuilder() {
   const [history, setHistory] = useState([]);
 
   const toggleTheme = () => setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  const API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
     setLoading(true);
     try {
-      const response = await fetch("https://api.llm7.io/v1/chat/completions", {
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer YOUR_LLM7_API_KEY_HERE",
+          Authorization: `Bearer ${API_KEY}`,
         },
         body: JSON.stringify({
-          model: "gpt-4o-mini-2024-07-18",
+          model: "qwen/qwen3-32b", // or "mixtral-8x7b-32768"
           messages: [
             {
               role: "user",
@@ -65,10 +66,10 @@ Prompt: "${prompt}"`,
       setCode(text);
       setHistory((prev) => [...prev, { prompt, code: text }]);
     } catch (err) {
-      console.error("LLM7 error:", err);
+      console.error("Groq API error:", err);
       setCode(`import React from "react";
 export default function App() {
-  return <h1>⚠️ LLM7 API Error</h1>;
+  return <h1>⚠️ Groq API Error</h1>;
 }`);
     }
     setLoading(false);
@@ -85,7 +86,6 @@ export default function App() {
 
   return (
     <div className={`min-h-screen ${theme === "dark" ? "bg-[#1e1e1e]" : "bg-[#f5f7fb]"} p-6`}>
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-[#6c5ce7]">⚡Lara – UI to React Code</h1>
         <div className="flex gap-3">
@@ -98,7 +98,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Prompt Input */}
       <div className="flex items-center gap-4 bg-white shadow-xl rounded-2xl px-6 py-4">
         <input
           type="text"
@@ -117,7 +116,6 @@ export default function App() {
         </button>
       </div>
 
-      {/* Code Preview */}
       <div className="mt-10 rounded-xl overflow-hidden shadow-2xl">
         <Sandpack
           theme={theme === "dark" ? amethyst : githubLight}
@@ -133,10 +131,11 @@ export default function App() {
         />
       </div>
 
-      {/* Prompt History */}
       {history.length > 0 && (
         <div className="mt-10 bg-white p-6 rounded-xl shadow-lg">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><FaHistory /> Prompt History</h2>
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <FaHistory /> Prompt History
+          </h2>
           <ul className="list-disc ml-6 space-y-2">
             {history.slice(-5).reverse().map((item, i) => (
               <li key={i} className="text-gray-700">
