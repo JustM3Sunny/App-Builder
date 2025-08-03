@@ -5,7 +5,7 @@ Designed for rapid prototyping, real-time code editing, and effortless previewin
 
 ---
 
-## [Demo](https://app-builder-weld.vercel.app//)
+## [Demo](https://app-builder-zeta.vercel.app//)
 
 
 ---
