@@ -32,7 +32,7 @@ export default function PromptToAppBuilder() {
           Authorization: `Bearer ${API_KEY}`,
         },
         body: JSON.stringify({
-          model: "qwen/qwen3-32b", // or "mixtral-8x7b-32768"
+          model: "moonshotai/kimi-k2-instruct", // or "mixtral-8x7b-32768"
           messages: [
             {
               role: "user",
