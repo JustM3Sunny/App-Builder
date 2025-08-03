@@ -87,7 +87,7 @@ export default function App() {
     <div className={`min-h-screen ${theme === "dark" ? "bg-[#1e1e1e]" : "bg-[#f5f7fb]"} p-6`}>
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-[#6c5ce7]">⚡ Skiper AI – UI to React Code</h1>
+        <h1 className="text-3xl font-bold text-[#6c5ce7]">⚡Lara – UI to React Code</h1>
         <div className="flex gap-3">
           <button onClick={toggleTheme} className="text-xl">
             {theme === "dark" ? <FaSun /> : <FaMoon />}
@@ -102,7 +102,7 @@ export default function App() {
       <div className="flex items-center gap-4 bg-white shadow-xl rounded-2xl px-6 py-4">
         <input
           type="text"
-          placeholder="Ask Skiper AI to build a UI component..."
+          placeholder="Ask Lara to build a UI component..."
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
